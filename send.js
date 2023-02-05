@@ -1,6 +1,9 @@
 const msmq = require('node-msmq');
 
-var queue = msmq.openOrCreateQueue('.\\Private$\\MyAwesomeQueue');
+var qqueue = msmq.openOrCreateQueue('.\\Private$\\MyAwesomeQueue');
 
 // Send message to queue
-queue.send('Hello from Node.JS!');
+for(var i=0; i< 100; i++) {
+    var test = {"id": i, "message": "Hello World!"}
+    qqueue.send(JSON.stringify(test));
+}

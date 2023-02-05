@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #purge {
+        background-color: red;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #queue {
+        list-style: none;
+        padding: 0;
+    }
+    #queue li {
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+</style>
+<body>
+    <div id="purge">Purge</div>
+    <ul id="queue"></ul>    
+
+    <script>
+        var expanded = 0;
+        // get queue contents
+        const queue = document.getElementById('queue');    
+        const purge = document.getElementById('purge');
+
+        // purge queue
+        purge.addEventListener('click', () => {
+            fetch('http://localhost:3000/purge')
+            .then(res => res.json())
+            .then(data => {
+                queue.innerHTML = '<ul></ul>';
+            });
+        });
+
+        setInterval(()=>{ 
+            fetch('http://localhost:3000/messages')
+            .then(res => res.json())
+            .then(data => {
+                queue.innerHTML = '<ul></ul>';
+                data.forEach((item, index) => {
+                    const id = JSON.parse(item).id;
+                    const li = document.createElement('li');
+                    // add click handler to get message
+
+                    li.addEventListener('click', () => {
+                        expanded = index;
+                    });
+
+                    if ( index == expanded) {
+                        li.innerHTML = item;                        
+                    } else {
+                        li.innerHTML = JSON.parse(item).body;
+                    }
+
+                    console.log(item);
+                    queue.appendChild(li);
+                    // add an x button to each li
+                    const x = document.createElement('span');
+                    x.innerHTML = 'x';
+                    x.style.color = 'red';
+                    x.style.cursor = 'pointer';
+                    x.style.float = 'right';
+                    x.addEventListener('click', () => {
+                        fetch(`http://localhost:3000/delete/${id}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log(data);
+                        });
+                    });
+                    li.appendChild(x);
+
+                });
+            });
+        }, 2000);        
+    </script>
+</body>
+</html>
